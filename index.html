@@ -11,57 +11,77 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <style>
   :root{
-    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a5f66; --rule:#e2e5ea; --accent:#0b5cad;
-    --card:#f7f8fa; --code:#f0f2f5; --maxw:760px;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#14171c; --fg:#e6e8eb; --muted:#9aa2ad; --rule:#2a2f37; --accent:#5aa2e6;
-           --card:#1b1f26; --code:#1e232b; }
+    --ink:#111418; --soft:#2c3138; --muted:#5a626c; --accent:#14385c;
+    --rule:#d1d4d8; --code:#f4f5f7;
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--bg);color:var(--fg);
-       font:17px/1.62 Georgia,'Times New Roman',serif;}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:56px 22px 96px}
-  header.title{border-bottom:1px solid var(--rule);padding-bottom:26px;margin-bottom:8px}
-  h1{font-size:29px;line-height:1.25;margin:0 0 14px;letter-spacing:-.01em}
-  .authors{font-size:16px;color:var(--fg);margin:2px 0}
-  .affil,.meta{font-size:14px;color:var(--muted);margin:4px 0}
-  .badges{margin:16px 0 0;font-family:ui-sans-serif,system-ui,Arial,sans-serif;font-size:13px}
-  .badges a{display:inline-block;border:1px solid var(--rule);border-radius:6px;
-            padding:4px 10px;margin:0 6px 6px 0;color:var(--accent);text-decoration:none}
-  .badges a:hover{border-color:var(--accent)}
-  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;
-     font-family:ui-sans-serif,system-ui,Arial,sans-serif;color:var(--muted);
-     margin:40px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:6px}
-  h3{font-size:18px;margin:26px 0 6px}
-  p{margin:12px 0}
+  html,body{background:#ffffff;color:var(--ink);}
+  body{
+    margin:0;
+    font:11pt/1.55 "Charter","Iowan Old Style","Source Serif Pro",Georgia,"Times New Roman",serif;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:52px 26px 90px}
+
+  /* Title block */
+  header.title{text-align:center;margin-bottom:26px}
+  h1{font-size:19pt;font-weight:600;line-height:1.28;margin:0 0 14px;color:var(--ink)}
+  .authors{font-size:12pt;margin:6px 0 2px}
+  .affil{font-size:10.5pt;color:var(--muted);margin:2px 0}
+  .meta{font-size:10pt;color:var(--muted);margin:6px 0 0;font-style:italic}
+  .badges{margin:16px 0 0}
+  .badges a{display:inline-block;border:1px solid var(--accent);border-radius:4px;
+            padding:3px 11px;margin:0 5px 6px 0;color:var(--accent);text-decoration:none;
+            font:9.5pt/1 "Charter",Georgia,serif}
+  .badges a:hover{background:var(--accent);color:#fff}
+
+  /* Abstract */
+  .abstract{margin:26px 34px 6px}
+  .abstract .lab{text-align:center;font-variant:small-caps;letter-spacing:.06em;
+                 font-size:11pt;font-weight:600;margin-bottom:6px}
+  .abstract p{font-size:10pt;line-height:1.5;text-align:justify;hyphens:auto;
+              margin:0;text-indent:0}
+
+  /* Sections */
+  h2{font-size:13pt;font-weight:700;color:var(--ink);margin:30px 0 8px;line-height:1.3}
+  h3{font-size:11.5pt;font-weight:700;color:var(--soft);margin:20px 0 4px}
+
+  /* Body: first-line indent, flush-first-paragraph */
+  p{margin:0;text-indent:1.4em;text-align:justify;hyphens:auto}
+  h2+p,h3+p,figure+p,.tablewrap+p,.abstract+p,.status+p,.pipeline+figcaption{text-indent:0}
+  .lead{text-indent:0;font-size:11.5pt}
   a{color:var(--accent)}
-  .lead{font-size:18.5px}
-  .abstract{background:var(--card);border:1px solid var(--rule);border-radius:10px;
-            padding:18px 20px;margin:22px 0}
-  .abstract p{margin:8px 0}
-  ul,ol{margin:12px 0;padding-left:22px}
-  li{margin:5px 0}
-  code{background:var(--code);border-radius:4px;padding:1px 5px;
-       font:14px/1.5 ui-monospace,'Cascadia Code',Menlo,Consolas,monospace}
-  .note{font-size:14.5px;color:var(--muted)}
-  figure{margin:22px 0;text-align:center}
-  figcaption{font-size:14px;color:var(--muted);margin-top:8px}
-  .tablewrap{overflow-x:auto;margin:18px 0}
-  table{border-collapse:collapse;width:100%;font-size:14.5px;
-        font-family:ui-sans-serif,system-ui,Arial,sans-serif}
-  th,td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
-  th{background:var(--card);font-weight:600}
-  .status{border-left:3px solid var(--accent);background:var(--card);
-          padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:15px}
-  .pipeline{font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--code);
-            border:1px solid var(--rule);border-radius:8px;padding:16px;white-space:pre;
-            overflow-x:auto;color:var(--fg)}
-  footer{margin-top:56px;border-top:1px solid var(--rule);padding-top:18px;
-         font-size:13.5px;color:var(--muted);font-family:ui-sans-serif,system-ui,Arial,sans-serif}
-  .refs{font-size:14px}
-  .refs li{margin:7px 0}
+  ul,ol{margin:10px 0 10px 0;padding-left:24px}
+  li{margin:4px 0;text-align:justify;hyphens:auto}
+  code{background:var(--code);border-radius:3px;padding:1px 4px;
+       font:9.8pt/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  /* Figures */
+  figure{margin:20px 0;text-align:center}
+  figcaption{font-size:9.5pt;color:var(--muted);margin-top:8px;text-align:left;line-height:1.45}
+  .pipeline{font:9pt/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+            background:#fff;border:1px solid var(--rule);border-radius:3px;padding:16px;
+            white-space:pre;overflow-x:auto;color:var(--ink);text-align:left;display:inline-block}
+
+  /* Booktabs tables */
+  .tablewrap{overflow-x:auto;margin:16px 0}
+  table{border-collapse:collapse;width:100%;font-size:9.5pt;line-height:1.4;
+        border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+  thead th{border-bottom:1px solid var(--ink);font-weight:700;background:none}
+  th,td{padding:6px 10px;text-align:left;vertical-align:top}
+  tbody tr td{border:none}
+
+  /* Status callout */
+  .status{border-left:2px solid var(--accent);padding:6px 0 6px 16px;margin:14px 0;
+          font-size:10.5pt;text-align:justify;hyphens:auto;color:var(--soft)}
+
+  /* References + footer */
+  h2.refhead{margin-bottom:10px}
+  ol.refs{font-size:9pt;line-height:1.45;padding-left:22px}
+  ol.refs li{margin:6px 0;text-align:left}
+  footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:16px;
+         font-size:9pt;color:var(--muted);text-align:left}
+  footer p{text-indent:0;text-align:left}
 </style>
 </head>
 <body>
@@ -69,7 +89,7 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
 
 <header class="title">
   <h1>Semantic Feature Transfer with Knowledge-Graph Embeddings</h1>
-  <div class="authors">Alex Partsin</div>
+  <div class="authors">Alexander Apartsin</div>
   <div class="affil">Working draft, 2026</div>
   <div class="meta">SFT-Bench: a cross-domain benchmark for semantic feature transfer</div>
   <div class="badges">
@@ -81,20 +101,21 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
 </header>
 
 <div class="abstract">
-  <p><strong>Abstract.</strong> Predictive models usually treat input features as anonymous
-  dimensions. A model may learn extensively from a feature such as reactor pressure or supply-air
-  temperature, yet it has no explicit mechanism for reusing that knowledge when a new but
-  semantically related feature appears, such as separator pressure or return-air temperature. We
-  study whether representing each numerical feature together with a semantic embedding derived from a
-  domain knowledge graph lets a model reuse predictive behaviour across semantically related
-  features, and therefore require fewer labeled examples when new sensors, variables, or measurement
-  types are introduced. We formalise this as <em>semantic feature transfer</em>, define a
-  label-efficiency measure for it, and introduce SFT-Bench, a cross-domain benchmark spanning
-  building systems, industrial control, and process monitoring, each paired with an independent
-  ontology. We specify a construct-matched evaluation protocol in which the feature encoder is held
-  fixed and only the semantic embedding varies, with pre-registered invariants that separate a
-  genuine semantic effect from a merely architectural one. Empirical validation across the benchmark
-  is in progress; this draft presents the formulation, the benchmark, and the protocol.</p>
+  <div class="lab">Abstract</div>
+  <p>Predictive models usually treat input features as anonymous dimensions. A model may learn
+  extensively from a feature such as reactor pressure or supply-air temperature, yet it has no
+  explicit mechanism for reusing that knowledge when a new but semantically related feature appears,
+  such as separator pressure or return-air temperature. We study whether representing each numerical
+  feature together with a semantic embedding derived from a domain knowledge graph lets a model reuse
+  predictive behaviour across semantically related features, and therefore require fewer labeled
+  examples when new sensors, variables, or measurement types are introduced. We formalise this as
+  semantic feature transfer, define a label-efficiency measure for it, and introduce SFT-Bench, a
+  cross-domain benchmark spanning building systems, industrial control, and process monitoring, each
+  paired with an independent ontology. We specify a construct-matched evaluation protocol in which
+  the feature encoder is held fixed and only the semantic embedding varies, with pre-registered
+  invariants that separate a genuine semantic effect from a merely architectural one. Empirical
+  validation across the benchmark is in progress; this draft presents the formulation, the benchmark,
+  and the protocol.</p>
 </div>
 
 <h2>1. Introduction</h2>
@@ -104,8 +125,8 @@ features mean.</p>
 mapping \( f(x_1,\ldots,x_m)\rightarrow y \). When a new but related feature is introduced, that
 model sees only a new anonymous column and must learn its behaviour from target data alone, even
 when it has already learned a great deal from a feature that measures the same physical quantity on a
-related component. We call the resulting problem the <em>new-feature cold-start</em>: a feature whose
-meaning is known from a domain ontology but whose predictive behaviour has not yet been observed.</p>
+related component. We call the resulting problem the new-feature cold-start: a feature whose meaning
+is known from a domain ontology but whose predictive behaviour has not yet been observed.</p>
 <p>External domain knowledge offers a way in. A knowledge graph that states a sensor measures
 pressure, is located at a separator, and is part of a process system places that sensor near others
 that share those properties. If a model is organised so that its per-feature computation is keyed on
@@ -229,24 +250,23 @@ cross-dataset transfer within a domain.</p>
 
 <h2>6. Semantic-distance analysis</h2>
 <p>Beyond aggregate accuracy, the benchmark tests whether semantic distance predicts transferability.
-For each feasible source-target feature pair we compute a semantic similarity \(S_{ij}=\operatorname{sim}(e_i,e_j)\)
-and an empirical transfer gain
+For each feasible source-target feature pair we compute a semantic similarity
+\(S_{ij}=\operatorname{sim}(e_i,e_j)\) and an empirical transfer gain
 \[
 T_{ij} = \mathrm{Performance}_{\,i\rightarrow j} - \mathrm{Performance}_{\,\text{scratch}(j)},
 \]
-and examine \(\mathrm{corr}(S_{ij}, T_{ij})\). A positive relationship would support the deeper
-claim that semantic similarity predicts statistical transferability, and would also indicate when
-graph structure, causal direction, or operating regime must enter the embedding for similarity to
-track transfer.</p>
+and examine \(\mathrm{corr}(S_{ij}, T_{ij})\). A positive relationship would support the deeper claim
+that semantic similarity predicts statistical transferability, and would also indicate when graph
+structure, causal direction, or operating regime must enter the embedding for similarity to track
+transfer.</p>
 
 <h2>7. Status</h2>
-<div class="status">
-The reference implementation and the single-pass evaluation harness are in place for the Phase-1
-building-systems domain: dataset conversion to the unified representation, the Brick graph parser,
-the seven embedding conditions, the shared-encoder model, the transfer splits, and the pre-registered
-sanity gate. Full cross-domain transfer results are in progress and will be reported with confidence
-intervals over seeds and held-out features as learning curves and semantic-distance scatter plots.
-</div>
+<p class="status">The reference implementation and the single-pass evaluation harness are in place for
+the Phase-1 building-systems domain: dataset conversion to the unified representation, the Brick graph
+parser, the seven embedding conditions, the shared-encoder model, the transfer splits, and the
+pre-registered sanity gate. Full cross-domain transfer results are in progress and will be reported
+with confidence intervals over seeds and held-out features as learning curves and semantic-distance
+scatter plots.</p>
 
 <h2>8. Related work</h2>
 <p>The approach connects transfer learning and tabular transfer, schema and entity matching,
@@ -263,7 +283,7 @@ construct-matched protocol are designed to measure that effect cleanly, to attri
 structure where structure matters, and to express it as a reduction in the target labels required to
 reach a fixed level of performance.</p>
 
-<h2>References</h2>
+<h2 class="refhead">References</h2>
 <ol class="refs">
 <li>Granderson, J. et al. LBNL Fault Detection and Diagnostics Data Sets. Lawrence Berkeley National
 Laboratory, 2022. DOI 10.25984/1881324.</li>
@@ -271,17 +291,17 @@ Laboratory, 2022. DOI 10.25984/1881324.</li>
 <li>Goh, J. et al. A Dataset to Support Research in the Design of Secure Water Treatment Systems
 (SWaT). CRITIS, 2016.</li>
 <li>Downs, J. and Vogel, E. A Plant-Wide Industrial Process Control Problem (Tennessee Eastman
-Process). Computers &amp; Chemical Engineering, 1993.</li>
+Process). Computers and Chemical Engineering, 1993.</li>
 <li>Zaheer, M. et al. Deep Sets. NeurIPS, 2017.</li>
 <li>Schlichtkrull, M. et al. Modeling Relational Data with Graph Convolutional Networks. ESWC,
 2018.</li>
 </ol>
 
 <footer>
-Working draft. Code and full documentation at
+<p>Working draft. Code and full documentation at
 <a href="https://github.com/apartsin/SFT-Bench">github.com/apartsin/SFT-Bench</a>.
 Dataset used under CC-BY 4.0. This page presents the method, benchmark, and protocol; empirical
-results are in progress.
+results are in progress.</p>
 </footer>
 
 </div>
