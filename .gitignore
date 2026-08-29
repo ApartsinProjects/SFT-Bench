@@ -1,0 +1,14 @@
+# data corpus (large, fetched on demand) — keep the .ttl and PDF, ignore CSVs
+data/raw/SDAHU/csv/
+data/raw/**/*.zip
+data/processed/
+results/*.parquet
+
+# python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# hf / torch caches
+.cache/

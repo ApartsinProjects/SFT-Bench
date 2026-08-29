@@ -1,0 +1,23 @@
+{
+  "dataset": "LBNL_SDAHU",
+  "task": "fault_vs_normal",
+  "window": 60,
+  "stride": 60,
+  "e_dim": 64,
+  "z_dim": 64,
+  "h_hidden": 32,
+  "seeds": [0, 1, 2, 3, 4],
+  "epochs": 15,
+  "lr": 1e-3,
+  "batch_size": 128,
+  "conditions": ["C0", "C1", "C2", "C3", "C4", "C5", "C6"],
+  "splits": ["standard", "feature_cold_start", "component_cold_start"],
+  "K_schedule": [0, 1, 2, 5, 10, 20, 50, 100],
+  "normalization": "median_iqr",
+  "normalization_source": "unlabeled_target_only",
+  "artifacts": {
+    "results": "results/phase1_run.parquet",
+    "sanity": "results/phase1_sanity.json"
+  },
+  "notes": "Frozen Phase-1 config. Only e_j differs across conditions; padded to e_dim so no condition gets more parameters. See docs/phase1_spec.md."
+}

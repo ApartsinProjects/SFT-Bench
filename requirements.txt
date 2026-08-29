@@ -1,0 +1,10 @@
+# Core (all present in the target environment)
+numpy
+pandas
+pyarrow
+torch
+rdflib>=7.0          # Brick .ttl parsing
+
+# Text-embedding baseline (condition C3). Present in-env; required before any KG-vs-text claim,
+# otherwise TextEmbedder falls back to a hashed-BoW placeholder and warns.
+sentence-transformers

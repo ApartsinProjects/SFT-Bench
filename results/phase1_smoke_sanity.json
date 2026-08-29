@@ -1,0 +1,39 @@
+{
+  "n_checks": 3,
+  "n_passed": 2,
+  "all_passed": false,
+  "checks": [
+    {
+      "invariant": "ordering_kg>=shuffled>=random",
+      "expected": "C5>=C6>=C1 at K<=5",
+      "passed": true,
+      "detail": {
+        "C5": 1.0,
+        "C6": 1.0,
+        "C1": 1.0
+      }
+    },
+    {
+      "invariant": "monotonic_in_K",
+      "expected": "auroc non-decreasing in K (tol 0.02)",
+      "passed": true,
+      "detail": {
+        "C0": true,
+        "C1": true,
+        "C2": true,
+        "C3": true,
+        "C4": true,
+        "C5": true,
+        "C6": true
+      }
+    },
+    {
+      "invariant": "learned_id_cannot_zeroshot",
+      "expected": "C2 K=0 on feature_cold_start ~ 0.5",
+      "passed": false,
+      "detail": {
+        "C2_zeroshot_auroc": 1.0
+      }
+    }
+  ]
+}
