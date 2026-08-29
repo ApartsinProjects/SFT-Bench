@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semantic Feature Transfer with Knowledge-Graph Embeddings</title>
+<meta name="description" content="SFT-Bench: a cross-domain benchmark for transferring predictive knowledge to unseen and low-data features using external domain semantics.">
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a5f66; --rule:#e2e5ea; --accent:#0b5cad;
+    --card:#f7f8fa; --code:#f0f2f5; --maxw:760px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14171c; --fg:#e6e8eb; --muted:#9aa2ad; --rule:#2a2f37; --accent:#5aa2e6;
+           --card:#1b1f26; --code:#1e232b; }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:17px/1.62 Georgia,'Times New Roman',serif;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:56px 22px 96px}
+  header.title{border-bottom:1px solid var(--rule);padding-bottom:26px;margin-bottom:8px}
+  h1{font-size:29px;line-height:1.25;margin:0 0 14px;letter-spacing:-.01em}
+  .authors{font-size:16px;color:var(--fg);margin:2px 0}
+  .affil,.meta{font-size:14px;color:var(--muted);margin:4px 0}
+  .badges{margin:16px 0 0;font-family:ui-sans-serif,system-ui,Arial,sans-serif;font-size:13px}
+  .badges a{display:inline-block;border:1px solid var(--rule);border-radius:6px;
+            padding:4px 10px;margin:0 6px 6px 0;color:var(--accent);text-decoration:none}
+  .badges a:hover{border-color:var(--accent)}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;
+     font-family:ui-sans-serif,system-ui,Arial,sans-serif;color:var(--muted);
+     margin:40px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:6px}
+  h3{font-size:18px;margin:26px 0 6px}
+  p{margin:12px 0}
+  a{color:var(--accent)}
+  .lead{font-size:18.5px}
+  .abstract{background:var(--card);border:1px solid var(--rule);border-radius:10px;
+            padding:18px 20px;margin:22px 0}
+  .abstract p{margin:8px 0}
+  ul,ol{margin:12px 0;padding-left:22px}
+  li{margin:5px 0}
+  code{background:var(--code);border-radius:4px;padding:1px 5px;
+       font:14px/1.5 ui-monospace,'Cascadia Code',Menlo,Consolas,monospace}
+  .note{font-size:14.5px;color:var(--muted)}
+  figure{margin:22px 0;text-align:center}
+  figcaption{font-size:14px;color:var(--muted);margin-top:8px}
+  .tablewrap{overflow-x:auto;margin:18px 0}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;
+        font-family:ui-sans-serif,system-ui,Arial,sans-serif}
+  th,td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:var(--card);font-weight:600}
+  .status{border-left:3px solid var(--accent);background:var(--card);
+          padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:15px}
+  .pipeline{font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--code);
+            border:1px solid var(--rule);border-radius:8px;padding:16px;white-space:pre;
+            overflow-x:auto;color:var(--fg)}
+  footer{margin-top:56px;border-top:1px solid var(--rule);padding-top:18px;
+         font-size:13.5px;color:var(--muted);font-family:ui-sans-serif,system-ui,Arial,sans-serif}
+  .refs{font-size:14px}
+  .refs li{margin:7px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Semantic Feature Transfer with Knowledge-Graph Embeddings</h1>
+  <div class="authors">Alex Partsin</div>
+  <div class="affil">Working draft, 2026</div>
+  <div class="meta">SFT-Bench: a cross-domain benchmark for semantic feature transfer</div>
+  <div class="badges">
+    <a href="https://github.com/apartsin/SFT-Bench">Code &amp; repository</a>
+    <a href="docs/research_plan.md">Research plan</a>
+    <a href="docs/phase1_spec.md">Phase-1 spec</a>
+    <a href="docs/dataset_notes_sdahu.md">Dataset notes</a>
+  </div>
+</header>
+
+<div class="abstract">
+  <p><strong>Abstract.</strong> Predictive models usually treat input features as anonymous
+  dimensions. A model may learn extensively from a feature such as reactor pressure or supply-air
+  temperature, yet it has no explicit mechanism for reusing that knowledge when a new but
+  semantically related feature appears, such as separator pressure or return-air temperature. We
+  study whether representing each numerical feature together with a semantic embedding derived from a
+  domain knowledge graph lets a model reuse predictive behaviour across semantically related
+  features, and therefore require fewer labeled examples when new sensors, variables, or measurement
+  types are introduced. We formalise this as <em>semantic feature transfer</em>, define a
+  label-efficiency measure for it, and introduce SFT-Bench, a cross-domain benchmark spanning
+  building systems, industrial control, and process monitoring, each paired with an independent
+  ontology. We specify a construct-matched evaluation protocol in which the feature encoder is held
+  fixed and only the semantic embedding varies, with pre-registered invariants that separate a
+  genuine semantic effect from a merely architectural one. Empirical validation across the benchmark
+  is in progress; this draft presents the formulation, the benchmark, and the protocol.</p>
+</div>
+
+<h2>1. Introduction</h2>
+<p class="lead">Models know the numerical values of their features but usually do not know what those
+features mean.</p>
+<p>A conventional model ties the identity of each feature to a fixed input position and learns a
+mapping \( f(x_1,\ldots,x_m)\rightarrow y \). When a new but related feature is introduced, that
+model sees only a new anonymous column and must learn its behaviour from target data alone, even
+when it has already learned a great deal from a feature that measures the same physical quantity on a
+related component. We call the resulting problem the <em>new-feature cold-start</em>: a feature whose
+meaning is known from a domain ontology but whose predictive behaviour has not yet been observed.</p>
+<p>External domain knowledge offers a way in. A knowledge graph that states a sensor measures
+pressure, is located at a separator, and is part of a process system places that sensor near others
+that share those properties. If a model is organised so that its per-feature computation is keyed on
+such semantics rather than on column position, then behaviour learned for one feature can apply to a
+semantically neighbouring feature that the model has never seen during training.</p>
+
+<h2>2. Problem definition</h2>
+<p>We represent a sample not as a bare vector but as a set of semantically described measurements,
+\[
+X = \{(x_j, e_j)\}_{j=1}^{m},
+\]
+where \(x_j\) is the observed value or short temporal window for feature \(j\) and \(e_j\) is a
+semantic embedding derived from a domain ontology. A shared feature encoder maps every pair to a
+representation
+\[
+z_j = F_\theta(x_j, e_j),
+\]
+the encoded features are combined by a permutation-invariant aggregator \( z = A(z_1,\ldots,z_m) \),
+and a head predicts \( \hat y = G(z) \). Because the same \(F_\theta\) processes every feature, the
+model can learn rules associated with semantic concepts rather than with fixed columns. For a
+previously unseen feature \(j^{*}\), an embedding \(e_{j^{*}}\) is generated from its ontology
+neighbourhood, so the encoder produces a representation for it without ever having seen its identity
+during training.</p>
+<p>We measure the contribution in terms of label efficiency rather than absolute accuracy. Let
+\(K_M(q)\) be the number of labeled target examples model \(M\) needs to reach performance \(q\).
+Semantic transfer efficiency is
+\[
+\mathrm{STE}(q) = \frac{K_{\text{baseline}}(q)}{K_{\text{semantic}}(q)},
+\]
+so an \(\mathrm{STE}(0.90)\) of five means the semantic model reaches AUROC 0.90 with one fifth of
+the target labels the baseline requires.</p>
+
+<h2>3. Method</h2>
+<figure>
+<div class="pipeline">Domain KG
+   |
+   +-- feature A --> embedding A --+
+   +-- feature B --> embedding B --+--> shared feature encoder F_theta
+   +-- feature C --> embedding C --+            |
+                                                v
+Observed values ----------------------> set / attention aggregator A
+                                                |
+                                                v
+                                            prediction G</div>
+<figcaption>Figure 1. Each feature is encoded from its value window and its semantic embedding by one
+shared encoder; a permutation-invariant aggregator allows the input dimensionality to vary between
+systems.</figcaption>
+</figure>
+<p>The semantic embedding \(e_j\) is the object under study, so the method is defined as a family of
+embedding sources evaluated inside one fixed architecture. We consider a random embedding (a fixed
+vector per feature), a learned per-feature identity embedding, a text embedding of the feature name,
+unit, and component description, a metadata embedding of measurement type, component type, and unit
+without graph topology, and a knowledge-graph embedding produced by an inductive encoder over the
+feature's ontology neighbourhood. The graph encoder is inductive by design, so an unseen feature node
+receives an embedding from its relations without retraining the graph.</p>
+
+<h2>4. SFT-Bench</h2>
+<p>SFT-Bench evaluates the same method across independent domains rather than across splits of a
+single dataset. Each domain contributes labeled data, an independent ontology, and common transfer
+protocols under one unified representation, so datasets with different feature counts share the same
+architecture.</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Domain</th><th>Data</th><th>Ontology</th><th>Transfer axis</th></tr></thead>
+<tbody>
+<tr><td>Building systems</td><td>LBNL FDD (AHU, FCU, RTU, chiller, boiler)</td><td>Brick</td>
+<td>unseen sensor, subtype, or equipment instance</td></tr>
+<tr><td>Industrial control</td><td>SWaT, WADI</td><td>SOSA/SSN, SAREF</td>
+<td>stage to stage, plant to plant</td></tr>
+<tr><td>Process monitoring</td><td>Tennessee Eastman</td><td>OntoCAPE, process topology</td>
+<td>reactor to separator to stripper</td></tr>
+<tr><td>Healthcare (later stage)</td><td>MIMIC-IV, eICU</td><td>LOINC, SNOMED, FHIR</td>
+<td>measurement modality, site to site</td></tr>
+</tbody>
+</table>
+</div>
+<p>The reference domain for Phase 1 is the LBNL Fault Detection and Diagnostics single-duct
+air-handling-unit dataset, distributed under CC-BY with a Brick model for the sensor points. The
+dataset is generated by building simulation; Phase-1 claims are scoped to that setting, and the
+industrial-control domain provides the real-testbed evidence. The single-duct unit contributes
+thirty points across the air handler, its fans, dampers, cooling coil, and five zones, with fault
+scenarios that localise to specific components. This gives ready-made transfer axes keyed on Brick
+semantics: a temperature-sensor fault on one location paired with the same fault on another, and an
+actuator-stuck fault on one component paired with the same fault on a different component.</p>
+
+<h2>5. Evaluation protocol</h2>
+<p>The protocol is construct-matched: across every condition the temporal encoder, the shared feature
+encoder, the aggregator, the head, the splits, and the seeds are identical, and only the embedding
+\(e_j\) changes. Embeddings are padded to a common dimension so that no condition receives more
+parameters than another, and every comparison is computed in a single pass and saved as one artifact.
+The conditions are summarised below.</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Condition</th><th>Embedding</th><th>What it establishes</th></tr></thead>
+<tbody>
+<tr><td>Value only</td><td>none</td><td>floor without semantics</td></tr>
+<tr><td>Random</td><td>fixed random vector</td><td>controls for extra dimensions</td></tr>
+<tr><td>Learned identity</td><td>trainable per-feature</td><td>in-distribution reference; cannot embed an unseen feature</td></tr>
+<tr><td>Text</td><td>sentence embedding of name, unit, component</td><td>the strong semantic competitor</td></tr>
+<tr><td>Metadata</td><td>type, component type, unit</td><td>isolates the value of graph topology</td></tr>
+<tr><td>Knowledge graph</td><td>inductive ontology encoder</td><td>the proposed representation</td></tr>
+<tr><td>Shuffled graph</td><td>permuted feature-to-node map</td><td>separates a semantic effect from an architectural one</td></tr>
+</tbody>
+</table>
+</div>
+<p>Two comparisons decide the central question. Knowledge-graph against text tests whether explicit
+graph structure adds value beyond what a modern text encoder already captures from the same metadata.
+Correct-graph against shuffled-graph, on an identical architecture, tests whether any benefit is
+semantic rather than a by-product of the shared encoder. The protocol carries pre-registered
+invariants whose expected outcomes are stated before each run: a degenerate value-only model matches
+a plain fixed-column model on full data; performance is non-decreasing in the number of target
+labels; the correct graph is at least as good as the shuffled graph, which is at least as good as the
+random embedding; and the learned-identity condition cannot succeed at zero-shot on a held-out
+feature. A violated invariant is treated as a defect to locate rather than a result to report.</p>
+<p>Each domain runs the same experiments: standard full-data prediction as a check that semantic
+representation does not degrade ordinary performance; few-shot feature transfer, measuring
+performance as a function of the number of target labels \(K\); zero-shot feature cold-start, where a
+feature is withheld entirely during training and only its values and ontology metadata are available
+at test time; component cold-start, where an entire component, stage, or instance is held out; and
+cross-dataset transfer within a domain.</p>
+
+<h2>6. Semantic-distance analysis</h2>
+<p>Beyond aggregate accuracy, the benchmark tests whether semantic distance predicts transferability.
+For each feasible source-target feature pair we compute a semantic similarity \(S_{ij}=\operatorname{sim}(e_i,e_j)\)
+and an empirical transfer gain
+\[
+T_{ij} = \mathrm{Performance}_{\,i\rightarrow j} - \mathrm{Performance}_{\,\text{scratch}(j)},
+\]
+and examine \(\mathrm{corr}(S_{ij}, T_{ij})\). A positive relationship would support the deeper
+claim that semantic similarity predicts statistical transferability, and would also indicate when
+graph structure, causal direction, or operating regime must enter the embedding for similarity to
+track transfer.</p>
+
+<h2>7. Status</h2>
+<div class="status">
+The reference implementation and the single-pass evaluation harness are in place for the Phase-1
+building-systems domain: dataset conversion to the unified representation, the Brick graph parser,
+the seven embedding conditions, the shared-encoder model, the transfer splits, and the pre-registered
+sanity gate. Full cross-domain transfer results are in progress and will be reported with confidence
+intervals over seeds and held-out features as learning curves and semantic-distance scatter plots.
+</div>
+
+<h2>8. Related work</h2>
+<p>The approach connects transfer learning and tabular transfer, schema and entity matching,
+knowledge-graph embeddings and inductive graph learning, set and feature-token architectures,
+metadata-aware and ontology-informed models, and the application literatures of industrial fault
+diagnosis and cross-dataset clinical prediction. The distinguishing element here is the combination
+of an inductive semantic embedding with a shared, position-free feature encoder evaluated for label
+efficiency across independent ontologies.</p>
+
+<h2>9. Conclusion</h2>
+<p>External semantic knowledge can act as a prior over feature identity, letting predictive models
+reuse learned behaviour when new but semantically related variables appear. SFT-Bench and its
+construct-matched protocol are designed to measure that effect cleanly, to attribute it to graph
+structure where structure matters, and to express it as a reduction in the target labels required to
+reach a fixed level of performance.</p>
+
+<h2>References</h2>
+<ol class="refs">
+<li>Granderson, J. et al. LBNL Fault Detection and Diagnostics Data Sets. Lawrence Berkeley National
+Laboratory, 2022. DOI 10.25984/1881324.</li>
+<li>Balaji, B. et al. Brick: Towards a Unified Metadata Schema for Buildings. ACM BuildSys, 2016.</li>
+<li>Goh, J. et al. A Dataset to Support Research in the Design of Secure Water Treatment Systems
+(SWaT). CRITIS, 2016.</li>
+<li>Downs, J. and Vogel, E. A Plant-Wide Industrial Process Control Problem (Tennessee Eastman
+Process). Computers &amp; Chemical Engineering, 1993.</li>
+<li>Zaheer, M. et al. Deep Sets. NeurIPS, 2017.</li>
+<li>Schlichtkrull, M. et al. Modeling Relational Data with Graph Convolutional Networks. ESWC,
+2018.</li>
+</ol>
+
+<footer>
+Working draft. Code and full documentation at
+<a href="https://github.com/apartsin/SFT-Bench">github.com/apartsin/SFT-Bench</a>.
+Dataset used under CC-BY 4.0. This page presents the method, benchmark, and protocol; empirical
+results are in progress.
+</footer>
+
+</div>
+</body>
+</html>
