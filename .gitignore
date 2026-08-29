@@ -12,3 +12,7 @@ __pycache__/
 
 # hf / torch caches
 .cache/
+
+# TEP raw data (re-fetch from github.com/camaramm/tennessee-eastman-profBraatz)
+data/raw/TEP/
+results/*.json

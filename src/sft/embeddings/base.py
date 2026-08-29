@@ -20,16 +20,21 @@ class FeatureEmbedder(Protocol):
 
 
 def pad_to(vecs: dict[str, np.ndarray], dim: int) -> dict[str, np.ndarray]:
-    """Zero-pad (or truncate) every vector to `dim` so all conditions share D."""
-    out = {}
-    for k, v in vecs.items():
-        v = np.asarray(v, dtype=np.float32).ravel()
-        if v.shape[0] < dim:
-            v = np.concatenate([v, np.zeros(dim - v.shape[0], dtype=np.float32)])
-        else:
-            v = v[:dim]
-        out[k] = v
-    return out
+    """Fit every vector to exactly `dim` so all conditions share D with NO information advantage:
+    zero-pad when smaller; PCA-reduce (distance-preserving) when larger, never arbitrary truncation.
+    Truncation would keep the first `dim` coordinates and silently cripple high-dim embeddings (text,
+    KG) while leaving low-dim ones (metadata) intact, confounding the comparison."""
+    keys = list(vecs.keys())
+    M = np.stack([np.asarray(vecs[k], dtype=np.float32).ravel() for k in keys])   # (N, D)
+    if M.shape[1] > dim:
+        Mc = M - M.mean(axis=0, keepdims=True)
+        # top principal directions (preserves the most pairwise-distance variance); rank is bounded
+        # by the number of features, so this may yield < dim components and is zero-padded below.
+        _, _, Vt = np.linalg.svd(Mc, full_matrices=False)
+        M = (Mc @ Vt[:dim].T).astype(np.float32)
+    if M.shape[1] < dim:                                        # pad up to exactly `dim`
+        M = np.concatenate([M, np.zeros((len(keys), dim - M.shape[1]), dtype=np.float32)], axis=1)
+    return {k: M[i].astype(np.float32) for i, k in enumerate(keys)}
 
 
 def shuffle_assign(vecs: dict[str, np.ndarray], seed: int) -> dict[str, np.ndarray]:
