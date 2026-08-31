@@ -31,7 +31,7 @@ from .run_imputation_strict import load_run, TRAIN_RUNS, TEST_RUNS, pearson
 ROOT = Path(__file__).resolve().parents[3]
 TARGETS = ["XMEAS16", "XMEAS22", "XMV11", "XMEAS18"]   # 3 recoverable + 1 non-recoverable (temp)
 KS = [0, 1, 2, 5, 10, 20]
-INIT_EMB = "A4_metadata"           # semantic init source (metadata); text/KG variants easy to add
+INIT_EMB = "A5_text"               # semantic init: TEXT (discriminative; metadata collides same-type)
 
 
 def pretrain(Xtr, E_ctx, train_targets, e_dim, cfg, device, rng):
