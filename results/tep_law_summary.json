@@ -1,0 +1,14 @@
+{
+  "spearman_signedrec_metaskill": [
+    0.316,
+    0.272
+  ],
+  "spearman_signedrec_textskill": [
+    0.73,
+    0.768
+  ],
+  "signcons_random": 0.638,
+  "signcons_metadata": 0.948,
+  "signcons_text": 0.86,
+  "n_targets": 17
+}
