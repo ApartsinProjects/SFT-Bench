@@ -80,7 +80,7 @@ def build_nested_tables(features: pd.DataFrame, dim: int, seed: int) -> dict[str
     # time (its transformer load is the dominant memory spike on commit-limited hosts).
     from pathlib import Path
     cache = Path(__file__).resolve().parents[3] / "results/tep_text_emb.npy"
-    if cache.exists():
+    if cache.exists() and np.load(cache).shape[0] == len(fids):   # shape-safe (TEP cache != PhysioNet)
         a5 = np.load(cache).astype(np.float32)
     else:
         text_vecs = TextEmbedder().embed(features)
