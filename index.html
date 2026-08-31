@@ -99,9 +99,11 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
   the sign rather than the magnitude, the labeled-data saving is small and precise, about one to two
   target samples, concentrated at the zero-shot point. A discriminative text embedding is required, as
   coarse one-hot metadata confidently mislabels sensors it cannot tell apart. We also give a runnable
-  admission test that screens whether a dataset can exhibit the effect at all, and show the same
+  admission test that screens whether a dataset can exhibit the effect at all, show the same
   recoverability rule dissociates a temperature sensor that transfers in a building dataset from one
-  that does not in the process dataset.</p>
+  that does not in the process dataset, and replicate the law with the deep model in a real clinical
+  intensive-care dataset, where blood-pressure variables transfer as predicted and independent
+  variables do not.</p>
 </div>
 
 <h2>1. Introduction</h2>
@@ -216,6 +218,14 @@ cross-correlated (sibling correlation 0.6 to 0.97), so the rule predicts they tr
 dataset, several temperatures are independently controlled to setpoints (sibling correlation 0.06), so
 the rule predicts they do not. Same type, opposite recoverability, opposite predicted outcome, from a
 statistic computable without any model.</p>
+<p>The law also replicates with the deep model in a real clinical domain, the PhysioNet Challenge 2012
+intensive-care dataset, where features are laboratory and vital-sign variables. Source-only signed
+recoverability again predicts realized zero-shot skill (Spearman 0.47 to 0.59 over seventeen held-out
+variables). The blood-pressure variables, which are cleanly and near-linearly coupled, transfer as
+predicted (mean skill 0.56), while independent variables such as glucose, lactate, temperature, and
+heart rate do not (mean skill 0.02). Sparsely measured laboratory variables with nonlinear couplings
+(acid-base, renal, liver) under-transfer relative to their cross-sectional recoverability, a boundary
+on the proxy: the statistic predicts transfer best for well-observed, linearly-coupled variables.</p>
 
 <h2>7. Related work</h2>
 <p>Feature-metadata transfer for tabular data is established in static tables. CARTE pretrains a
@@ -238,10 +248,11 @@ model can predict it at once; a value near zero means there is no borrowable sig
 means semantics will confidently produce the wrong sign, so the sensor should not be virtualized
 zero-shot without at least one observation to fix the polarity. The embedding must be discriminative
 enough to distinguish same-type sensors, which text descriptions provide and coarse categorical
-metadata does not. The limitations are plain and stated as scope: the transfer measurements are on one
-process dataset with a simulation origin, the admission and dissociation results add a second domain
-only at the level of the statistic, and the labeled-data saving, while real and predictable, is
-localized to the sign. These boundaries are what the source-only statistic is for.</p>
+metadata does not. The limitations are plain and stated as scope: the primary transfer measurements are
+on one process dataset with a simulation origin; the clinical replication confirms the law but is
+weaker for sparsely measured, nonlinearly-coupled laboratory variables, where the cross-sectional
+recoverability proxy overestimates transfer; and the labeled-data saving, while real and predictable,
+is localized to the sign. These boundaries are what the source-only statistic is for.</p>
 
 <h2>9. Conclusion</h2>
 <p>Semantic descriptors decide where a zero-shot imputer looks; the signed correlation structure of
@@ -273,8 +284,8 @@ Computers and Chemical Engineering, 1993.</li>
 <footer>
 <p>Working draft. Code, experiments, and result artifacts at
 <a href="https://github.com/ApartsinProjects/SFT-Bench">github.com/ApartsinProjects/SFT-Bench</a>.
-Numbers are from a strict leakage-controlled protocol; a clinical-laboratory replication is in
-preparation.</p>
+Numbers are from a strict leakage-controlled protocol on the Tennessee Eastman Process, with a
+deep-model replication on the PhysioNet Challenge 2012 clinical dataset.</p>
 </footer>
 
 </div>
