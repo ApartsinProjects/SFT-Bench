@@ -1,0 +1,9 @@
+{
+  "claim": "graph topology carries no statistical-recoverability information, so a graph encoder cannot beat a type/text embedding",
+  "n_same_type_pairs": 287,
+  "corr_topology_sim_vs_statcorr": 0.039,
+  "corr_same_component_vs_statcorr": 0.054,
+  "mean_statcorr_topo_high": 0.342,
+  "mean_statcorr_topo_low": 0.341,
+  "implication": "KG topology is dead by principle for this task; the useful signal is measurement type + discriminative text identity, not graph structure"
+}
