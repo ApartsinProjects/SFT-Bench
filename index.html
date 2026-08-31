@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Semantic Feature Transfer with Knowledge-Graph Embeddings</title>
-<meta name="description" content="SFT-Bench: a cross-domain benchmark for transferring predictive knowledge to unseen and low-data features using external domain semantics.">
+<title>Semantics Gate, Statistics Decide</title>
+<meta name="description" content="Predicting zero-shot transfer to unseen sensors from source data alone: semantics set polarity, statistical recoverability sets magnitude.">
 <script>
 window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] }, svg: { fontCache: 'global' } };
 </script>
@@ -22,8 +22,6 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
     font:11pt/1.55 "Charter","Iowan Old Style","Source Serif Pro",Georgia,"Times New Roman",serif;
   }
   .wrap{max-width:720px;margin:0 auto;padding:52px 26px 90px}
-
-  /* Title block */
   header.title{text-align:center;margin-bottom:26px}
   h1{font-size:19pt;font-weight:600;line-height:1.28;margin:0 0 14px;color:var(--ink)}
   .authors{font-size:12pt;margin:6px 0 2px}
@@ -34,48 +32,31 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
             padding:3px 11px;margin:0 5px 6px 0;color:var(--accent);text-decoration:none;
             font:9.5pt/1 "Charter",Georgia,serif}
   .badges a:hover{background:var(--accent);color:#fff}
-
-  /* Abstract */
   .abstract{margin:26px 34px 6px}
   .abstract .lab{text-align:center;font-variant:small-caps;letter-spacing:.06em;
                  font-size:11pt;font-weight:600;margin-bottom:6px}
   .abstract p{font-size:10pt;line-height:1.5;text-align:justify;hyphens:auto;
               margin:0;text-indent:0}
-
-  /* Sections */
   h2{font-size:13pt;font-weight:700;color:var(--ink);margin:30px 0 8px;line-height:1.3}
   h3{font-size:11.5pt;font-weight:700;color:var(--soft);margin:20px 0 4px}
-
-  /* Body: first-line indent, flush-first-paragraph */
   p{margin:0;text-indent:1.4em;text-align:justify;hyphens:auto}
-  h2+p,h3+p,figure+p,.tablewrap+p,.abstract+p,.status+p,.pipeline+figcaption{text-indent:0}
+  h2+p,h3+p,figure+p,.tablewrap+p,.abstract+p,.status+p{text-indent:0}
   .lead{text-indent:0;font-size:11.5pt}
   a{color:var(--accent)}
   ul,ol{margin:10px 0 10px 0;padding-left:24px}
   li{margin:4px 0;text-align:justify;hyphens:auto}
   code{background:var(--code);border-radius:3px;padding:1px 4px;
        font:9.8pt/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-
-  /* Figures */
   figure{margin:20px 0;text-align:center}
   figcaption{font-size:9.5pt;color:var(--muted);margin-top:8px;text-align:left;line-height:1.45}
-  .pipeline{font:9pt/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-            background:#fff;border:1px solid var(--rule);border-radius:3px;padding:16px;
-            white-space:pre;overflow-x:auto;color:var(--ink);text-align:left;display:inline-block}
-
-  /* Booktabs tables */
   .tablewrap{overflow-x:auto;margin:16px 0}
   table{border-collapse:collapse;width:100%;font-size:9.5pt;line-height:1.4;
         border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
   thead th{border-bottom:1px solid var(--ink);font-weight:700;background:none}
   th,td{padding:6px 10px;text-align:left;vertical-align:top}
   tbody tr td{border:none}
-
-  /* Status callout */
   .status{border-left:2px solid var(--accent);padding:6px 0 6px 16px;margin:14px 0;
           font-size:10.5pt;text-align:justify;hyphens:auto;color:var(--soft)}
-
-  /* References + footer */
   h2.refhead{margin-bottom:10px}
   ol.refs{font-size:9pt;line-height:1.45;padding-left:22px}
   ol.refs li{margin:6px 0;text-align:left}
@@ -88,307 +69,212 @@ window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]
 <div class="wrap">
 
 <header class="title">
-  <h1>Semantic Feature Transfer with Knowledge-Graph Embeddings</h1>
+  <h1>Semantics Gate, Statistics Decide: Predicting Zero-Shot Transfer to Unseen Sensors from Source Data Alone</h1>
   <div class="authors">Alexander Apartsin<sup>1</sup>, Yehudit Aperstein<sup>2</sup></div>
   <div class="affil"><sup>1</sup>School of Computer Science, Faculty of Sciences, Holon Institute of
   Technology (HIT), Holon, Israel</div>
   <div class="affil"><sup>2</sup>Intelligent Systems, Afeka Academic College of Engineering,
   Tel-Aviv, Israel</div>
-  <div class="meta">SFT-Bench: a cross-domain benchmark for semantic feature transfer &middot; working draft, 2026</div>
+  <div class="meta">Working draft, 2026</div>
   <div class="badges">
     <a href="https://github.com/ApartsinProjects/SFT-Bench">Code &amp; repository</a>
-    <a href="docs/research_plan.md">Research plan</a>
-    <a href="docs/phase1_spec.md">Phase-1 spec</a>
+    <a href="docs/framing_v3_signed_law.md">Method notes</a>
     <a href="docs/dataset_notes_sdahu.md">Dataset notes</a>
   </div>
 </header>
 
 <div class="abstract">
   <div class="lab">Abstract</div>
-  <p>Predictive models usually treat input features as anonymous dimensions. A model may learn
-  extensively from a feature such as reactor pressure, yet it has no mechanism for reusing that
-  knowledge when a semantically related feature appears, such as separator pressure. We study whether
-  representing each numerical feature together with a semantic embedding derived from a domain
-  knowledge graph lets a model reuse predictive behaviour across related features, so that new sensors
-  and variables need fewer labeled examples. We formalise this as semantic feature transfer and
-  introduce SFT-Bench, a cross-domain benchmark with a construct-matched protocol: the architecture,
-  splits, and seeds are held fixed and only the semantic embedding varies, under pre-registered
-  invariants that separate a semantic effect from an architectural one. We report three findings.
-  First, a dataset can test the hypothesis only when fault evidence is feature-localized and
-  non-redundant; a runnable admission gate shows that a common HVAC benchmark fails this test while
-  the Tennessee Eastman Process passes it. Second, the task matters: fault detection is value-evident
-  and cannot exhibit the effect, whereas on zero-shot sensor imputation a semantic embedding lets the
-  model predict a sensor it was never trained to predict, with correct semantics beating a
-  shuffled-semantics control in five of five seeds and pressure sensors tracked at correlation 0.92.
-  Third, semantic similarity alone does not predict transfer gain (Spearman 0.06); transfer is
-  governed by the statistical predictability of same-type siblings.</p>
+  <p>When a new sensor is added to a monitored system, a model has no history for it and normally needs
+  fresh labeled data to use it. We ask whether a semantic embedding of the sensor, derived from its
+  name, units, and role, lets a shared encoder predict the new sensor from the others with little or no
+  target data, and we characterize exactly what such an embedding contributes. Studying zero-shot
+  sensor imputation on the Tennessee Eastman Process under a strict, leakage-controlled protocol, we
+  find that realized skill decomposes cleanly: the magnitude of what a model can predict is fixed by
+  the statistical recoverability of the sensor from its same-type siblings, and is the same for any
+  embedding, while the semantic embedding contributes the polarity of the prediction. A source-only
+  signed-recoverability statistic, computable before any target label, predicts realized zero-shot
+  skill with rank correlation 0.73, and it predicts the failures as well as the successes: sensors
+  whose siblings are anti-correlated receive a confident wrong-sign prediction. Because semantics buy
+  the sign rather than the magnitude, the labeled-data saving is small and precise, about one to two
+  target samples, concentrated at the zero-shot point. A discriminative text embedding is required, as
+  coarse one-hot metadata confidently mislabels sensors it cannot tell apart. We also give a runnable
+  admission test that screens whether a dataset can exhibit the effect at all, and show the same
+  recoverability rule dissociates a temperature sensor that transfers in a building dataset from one
+  that does not in the process dataset.</p>
 </div>
 
 <h2>1. Introduction</h2>
-<p class="lead">Models know the numerical values of their features but usually do not know what those
-features mean.</p>
-<p>A conventional model ties the identity of each feature to a fixed input position and learns a
-mapping \( f(x_1,\ldots,x_m)\rightarrow y \). When a new but related feature is introduced, that
-model sees only a new anonymous column and must learn its behaviour from target data alone, even
-when it has already learned a great deal from a feature that measures the same physical quantity on a
-related component. We call the resulting problem the new-feature cold-start: a feature whose meaning
-is known from a domain ontology but whose predictive behaviour has not yet been observed.</p>
-<p>External domain knowledge offers a way in. A knowledge graph that states a sensor measures
-pressure, is located at a separator, and is part of a process system places that sensor near others
-that share those properties. If a model is organised so that its per-feature computation is keyed on
-such semantics rather than on column position, then behaviour learned for one feature can apply to a
-semantically neighbouring feature that the model has never seen during training.</p>
-<p>This work contributes: a formalization of semantic feature transfer and a label-efficiency measure
-for it; a construct-matched evaluation protocol in which only the semantic embedding varies, with
-pre-registered invariants; a benchmark-admission gate that identifies which datasets can test the
-hypothesis at all, and the finding that a common HVAC benchmark cannot while the Tennessee Eastman
-Process can; and evidence that semantic embeddings enable zero-shot sensor imputation, together with
-the boundary conditions on when they do, including that semantic similarity does not by itself predict
-transferability.</p>
+<p class="lead">A model knows the numbers a sensor produces, but not what the sensor means, so a newly
+installed sensor starts cold.</p>
+<p>Adding a sensor to an industrial plant, a building, or a monitored process is common, and the model
+that watches the plant has no history for the new channel. The conventional response is to collect and
+label new data for it. Recent work on schema-flexible and foundation tabular models shows that column
+text or metadata can help a model reuse knowledge across features, yet time-series foundation models
+remain largely metadata-blind, and it is unclear how much external sensor semantics actually buy, and
+under what conditions. We study this directly and give a quantitative account.</p>
+<p>Our object of study is a shared encoder that processes every sensor conditioned on a semantic
+embedding of that sensor, so behaviour learned for one sensor can apply to a new sensor whose embedding
+is close. The question is not whether semantics help on average, which prior work established, but what
+specific quantity they contribute, whether that contribution is predictable in advance, and when it
+fails.</p>
+<p>This paper contributes: a decomposition of zero-shot transfer skill into a magnitude set by
+statistics and a polarity set by semantics; a source-only signed-recoverability statistic that
+predicts realized transfer, including its failures, before any target label; a measurement of the
+resulting labeled-data saving, which is small and localized to the sign; the finding that a
+discriminative text embedding is necessary because coarse metadata confidently mislabels
+indistinguishable sensors; a runnable dataset-admission test; and a cross-domain dissociation showing
+the rule tracks statistics, not the semantic label.</p>
 
-<h2>2. Problem definition</h2>
-<p>We represent a sample not as a bare vector but as a set of semantically described measurements,
-\[
-X = \{(x_j, e_j)\}_{j=1}^{m},
-\]
-where \(x_j\) is the observed value or short temporal window for feature \(j\) and \(e_j\) is a
-semantic embedding derived from a domain ontology. A shared feature encoder maps every pair to a
-representation
-\[
-z_j = F_\theta(x_j, e_j),
-\]
-the encoded features are combined by a permutation-invariant aggregator \( z = A(z_1,\ldots,z_m) \),
-and a head predicts \( \hat y = G(z) \). Because the same \(F_\theta\) processes every feature, the
-model can learn rules associated with semantic concepts rather than with fixed columns. For a
-previously unseen feature \(j^{*}\), an embedding \(e_{j^{*}}\) is generated from its ontology
-neighbourhood, so the encoder produces a representation for it without ever having seen its identity
-during training.</p>
-<p>We measure the contribution in terms of label efficiency rather than absolute accuracy. Let
-\(K_M(q)\) be the number of labeled target examples model \(M\) needs to reach performance \(q\).
-Semantic transfer efficiency is
-\[
-\mathrm{STE}(q) = \frac{K_{\text{baseline}}(q)}{K_{\text{semantic}}(q)},
-\]
-so an \(\mathrm{STE}(q)\) of five means the semantic model reaches performance \(q\) with one fifth of
-the target labels the baseline requires. The zero-shot results in Section 7 correspond to the limit
-\(K_{\text{semantic}}=0\): the semantic model reaches nonzero skill with no target labels at all.</p>
+<h2>2. Setup and protocol</h2>
+<p>We study zero-shot imputation of an unseen sensor. A held-out sensor is removed from every training
+input and is never a training target; a query-conditioned cross-attention model imputes it at test time
+from the other sensors and its semantic embedding, so the embedding determines which context sensors
+the model attends to. We use the Tennessee Eastman Process, whose fifty-two variables carry clear
+measurement semantics (pressures, temperatures, levels, flows, compositions, and manipulated valves).
+Evaluation splits are leakage-controlled: training uses each fault type's simulation run and testing
+uses the same fault type's independent run, so cross-sensor relationships hold while the trajectories
+are distinct. A train-query probe confirms the task is learnable on the test trajectories (tracking
+skill 0.25); an earlier disjoint-fault split failed this probe and made the effect spuriously vanish.</p>
+<p>The metric is tracking skill, the correlation between the predicted and true series of the held-out
+sensor. We report it three ways, because pooling correlation over several operating regimes conflates
+identifying the regime with tracking within it: the magnitude \(|r|\), the sign-consistency across
+seeds, and the within-run correlation. Embeddings are compared inside one fixed architecture; only the
+per-sensor embedding changes.</p>
 
-<h2>3. Method</h2>
-<figure>
-<div class="pipeline">Domain KG
-   |
-   +-- feature A --> embedding A --+
-   +-- feature B --> embedding B --+--> shared feature encoder F_theta
-   +-- feature C --> embedding C --+            |
-                                                v
-Observed values ----------------------> set / attention aggregator A
-                                                |
-                                                v
-                                            prediction G</div>
-<figcaption>Figure 1. Each feature is encoded from its value window and its semantic embedding by one
-shared encoder; a permutation-invariant aggregator allows the input dimensionality to vary between
-systems.</figcaption>
-</figure>
-<p>The semantic embedding \(e_j\) is the object under study, so the method is defined as a family of
-embedding sources evaluated inside one fixed architecture. We consider a random embedding (a fixed
-vector per feature), a learned per-feature identity embedding, a text embedding of the feature name,
-unit, and component description, a metadata embedding of measurement type, component type, and unit
-without graph topology, and a knowledge-graph embedding constructed from the
-feature's ontology neighbourhood: a relation-typed encoding of the node's typed edges (measures,
-is-located-at, is-part-of), so an unseen feature node receives an embedding directly from its
-relations without any training on the graph.</p>
-
-<h2>4. SFT-Bench</h2>
-<p>SFT-Bench evaluates the same method across independent domains rather than across splits of a
-single dataset. Each domain contributes labeled data, an independent ontology, and common transfer
-protocols under one unified representation, so datasets with different feature counts share the same
-architecture.</p>
+<h2>3. The decomposition: magnitude from statistics, polarity from semantics</h2>
+<p>Per seed, the magnitude \(|r|\) a model extracts for a given sensor is nearly fixed, while its sign
+varies. A random embedding recovers the same correlation with a held-out pressure sensor as a semantic
+one; it simply cannot decide the polarity. Define the source-only signed recoverability of sensor \(j\)
+as the correlation of \(j\) to its best same-type sibling, measured on training data with the sign
+kept. Across held-out sensors:</p>
 <div class="tablewrap">
 <table>
-<thead><tr><th>Domain</th><th>Data</th><th>Ontology</th><th>Transfer axis</th></tr></thead>
+<thead><tr><th>Quantity</th><th>Set by</th><th>Evidence</th></tr></thead>
 <tbody>
-<tr><td>Building systems</td><td>LBNL FDD (AHU, FCU, RTU, chiller, boiler)</td><td>Brick</td>
-<td>unseen sensor, subtype, or equipment instance</td></tr>
-<tr><td>Industrial control</td><td>SWaT, WADI</td><td>SOSA/SSN, SAREF</td>
-<td>stage to stage, plant to plant</td></tr>
-<tr><td>Process monitoring</td><td>Tennessee Eastman</td><td>OntoCAPE, process topology</td>
-<td>reactor to separator to stripper</td></tr>
-<tr><td>Healthcare (later stage)</td><td>MIMIC-IV, eICU</td><td>LOINC, SNOMED, FHIR</td>
-<td>measurement modality, site to site</td></tr>
+<tr><td>Magnitude \(|r|\)</td><td>statistics</td><td>\(|\text{recoverability}|\) vs \(|r|\): Pearson 0.94</td></tr>
+<tr><td>Polarity (sign-consistency)</td><td>semantics</td><td>random 0.64, one-hot metadata 0.95, text 0.86</td></tr>
+<tr><td>Realized signed skill</td><td>signed recoverability</td><td>Spearman 0.73, 95% CI [0.27, 0.95] (text, n=17)</td></tr>
 </tbody>
 </table>
 </div>
-<p>The building-systems domain is instantiated with the LBNL Fault Detection and Diagnostics single-duct
-air-handling-unit dataset, distributed under CC-BY with a Brick model for the sensor points and
-generated by building simulation. The process-monitoring domain is instantiated with the Tennessee
-Eastman Process. These two domains carry the results in this paper; the remaining rows of the table
-are the benchmark's intended extensions. The single-duct unit contributes thirty points across the
-air handler, its fans, dampers, cooling coil, and five zones. A dataset
-admits a semantic-feature-transfer evaluation only when fault evidence is feature-localized and
-non-redundant, which we test with a headroom gate: hold a fault's primary sensor columns out and
-measure whether detection degrades. Section 7.1 reports the gate outcomes: the single-duct unit fails
-it and the Tennessee Eastman Process passes it, so the transfer experiments run on the admitted
-domain and the gate itself is reported as a benchmark-admission criterion.</p>
+<p>The signed-recoverability statistic predicts realized zero-shot skill from source data alone, before
+any target label. It is not merely a success predictor: sensors whose same-type siblings are
+anti-correlated receive a confident wrong-sign prediction, which the signed statistic forecasts as a
+negative skill. A manipulated valve whose nearest same-type sibling moves oppositely is imputed with
+skill near its negative sibling correlation, exactly as predicted.</p>
 
-<h2>5. Evaluation protocol</h2>
-<p>The protocol is construct-matched: across every condition the temporal encoder, the shared feature
-encoder, the aggregator, the head, the splits, and the seeds are identical, and only the embedding
-\(e_j\) changes. Embeddings are padded to a common dimension so that no condition receives more
-parameters than another, and every comparison is computed in a single pass and saved as one artifact.
-The conditions are summarised below.</p>
+<h2>4. The failure mode: sign-blind transfer, and why text beats metadata</h2>
+<p>Zero-shot semantic imputation is sign-blind: the embedding selects which siblings to attend to and
+the model reproduces their signed correlation, so an anti-correlated eligible sibling yields a confident
+wrong answer. This makes the choice of embedding consequential in a specific way. One-hot metadata that
+assigns identical descriptors to several same-type sensors cannot tell them apart, so it attends to the
+wrong sibling and locks the wrong sign; a text embedding that carries the distinguishing name attends
+correctly.</p>
 <div class="tablewrap">
 <table>
-<thead><tr><th>Condition</th><th>Embedding</th><th>What it establishes</th></tr></thead>
+<thead><tr><th>Held sensor (recoverable)</th><th>metadata signed skill</th><th>text signed skill</th></tr></thead>
 <tbody>
-<tr><td>Value only</td><td>none</td><td>floor without semantics</td></tr>
-<tr><td>Random</td><td>fixed random vector</td><td>controls for extra dimensions</td></tr>
-<tr><td>Learned identity</td><td>trainable per-feature</td><td>in-distribution reference; cannot embed an unseen feature</td></tr>
-<tr><td>Text</td><td>sentence embedding of name, unit, component</td><td>the strong semantic competitor</td></tr>
-<tr><td>Metadata</td><td>type, component type, unit</td><td>isolates the value of graph topology</td></tr>
-<tr><td>Knowledge graph</td><td>relation-typed ontology-neighbourhood encoding</td><td>the proposed representation</td></tr>
-<tr><td>Shuffled graph</td><td>permuted feature-to-node map</td><td>separates a semantic effect from an architectural one</td></tr>
+<tr><td>Stripper pressure</td><td>+0.85</td><td>+0.96</td></tr>
+<tr><td>Product composition</td><td>&minus;0.90</td><td>+0.89</td></tr>
+<tr><td>Condenser cooling temperature</td><td>&minus;0.75</td><td>+0.53</td></tr>
 </tbody>
 </table>
 </div>
-<p>Two comparisons decide the central question. Knowledge-graph against text tests whether explicit
-graph structure adds value beyond what a modern text encoder already captures from the same metadata.
-Correct-graph against shuffled-graph, on an identical architecture, tests whether any benefit is
-semantic rather than a by-product of the shared encoder. The protocol carries pre-registered
-invariants whose expected outcomes are stated before each run: a degenerate value-only model matches
-a plain fixed-column model on full data; performance is non-decreasing in the number of target
-labels; in aggregate across queries and seeds, the correct graph is at least as good as the shuffled graph,
-which is at least as good as the random embedding; and the learned-identity condition cannot succeed
-at zero-shot on a held-out feature. A violated invariant is treated as a defect to locate rather than a result to report.</p>
-<p>The protocol defines a common experiment ladder per domain: full-data prediction, few-shot feature
-transfer as a function of the number of target labels \(K\), zero-shot feature cold-start, component
-cold-start, and cross-dataset transfer. This paper reports the zero-shot rung, which isolates the
-semantic effect most sharply. Because fault detection is value-evident (Section 7.1), the
-transfer measurements are made on zero-shot sensor imputation: a held-out query sensor, never a
-training target, is predicted from the other sensors and its semantic embedding through
-query-conditioned cross-attention, so a semantic embedding that places the query near its trained
-siblings can transfer their learned prediction behaviour.</p>
+<p>Compositions share their one-hot metadata with several sensors and the two cooling temperatures
+share theirs with each other, so metadata confidently imputes them with the wrong sign while text does
+not. Consequently the signed-recoverability law holds for the text embedding (Spearman 0.73) and is
+weak for one-hot metadata (0.32), and within-run tracking, which measures real tracking rather than
+regime identification, is much higher for text (0.44 on recoverable sensors versus &minus;0.01 on
+non-recoverable ones).</p>
 
-<h2>6. Semantic-distance analysis</h2>
-<p>Beyond aggregate accuracy, the benchmark tests whether semantic distance predicts transferability.
-For each feasible source-target feature pair we compute a semantic similarity
-\(S_{ij}=\operatorname{sim}(e_i,e_j)\) and an empirical transfer gain
-\[
-T_{ij} = \mathrm{Performance}_{\,i\rightarrow j} - \mathrm{Performance}_{\,\text{scratch}(j)},
-\]
-and examine \(\mathrm{corr}(S_{ij}, T_{ij})\). A positive relationship would support the deeper claim
-that semantic similarity predicts statistical transferability. Section 7.3 reports the measured
-relationship on the Tennessee Eastman Process.</p>
+<h2>5. What the embedding saves: about one label, at the sign</h2>
+<p>Because magnitude is statistical and polarity is semantic, the labeled-data benefit is small and
+localized. We cold-start a held sensor by adapting its embedding on \(K\) target samples, starting
+either from the text embedding or from a fresh random vector, and measure skill against \(K\). At
+\(K=0\) the semantic start gives the correct-polarity prediction (mean signed skill +0.59, correct sign
+in 83% of seeds) while the fresh start is a coin flip (\(-0.17\), 58%); on the strongest sensor the gap
+is +0.91 against \(-0.45\). By \(K=2\) the fresh start has learned the sign from the samples and
+matches the semantic start. The magnitude \(|r|\) is identical for both starts at every \(K\), as the
+decomposition predicts.</p>
+<p>The practical statement is therefore precise rather than inflated: knowing the sensor's semantics
+buys the zero-shot and first-sample regime, roughly one to two labeled observations, not a large
+reduction in total training data. What it buys is exactly the quantity the statistics cannot supply,
+the sign.</p>
 
-<h2>7. Results</h2>
-<h3>7.1 Benchmark admissibility</h3>
-<p>The admission gate holds out a fault's primary sensor columns and measures whether detection
-degrades. On the LBNL single-duct air handler, masking a fault's own columns leaves detection
-essentially unchanged, because closed-loop control propagates every fault across the sensor set and
-no column is necessary; the drop is within noise of zero. On the Tennessee Eastman Process the same
-gate produces large drops for the reactor-cooling faults, whose evidence is concentrated on the
-cooling-loop sensors. The table reports detection AUROC with the fault's primary columns present and
-masked; the drop is the gate statistic. IDV5, IDV11, and IDV14 are the Tennessee Eastman Process's
-programmed disturbance codes; IDV11 and IDV14 perturb reactor cooling-water behaviour and IDV5 the
-condenser cooling-water inlet.</p>
-<div class="tablewrap">
-<table>
-<thead><tr><th>Dataset / fault</th><th>columns present</th><th>columns masked</th><th>drop</th><th>admits transfer</th></tr></thead>
-<tbody>
-<tr><td>LBNL SDAHU (any fault)</td><td>~1.00</td><td>~1.00</td><td>~0.00</td><td>no (redundant)</td></tr>
-<tr><td>TEP reactor-cooling (IDV14)</td><td>1.000</td><td>0.594</td><td>0.406</td><td>yes</td></tr>
-<tr><td>TEP reactor-cooling (IDV11)</td><td>0.871</td><td>0.514</td><td>0.357</td><td>yes</td></tr>
-<tr><td>TEP condenser-cooling (IDV5)</td><td>0.921</td><td>0.793</td><td>0.128</td><td>yes</td></tr>
-</tbody>
-</table>
-</div>
-<p>Fault detection additionally proves value-evident: a value-only model detects a held-out fault at
-AUROC 0.94 with the fault's columns masked during training, because an anomalous value is anomalous
-regardless of feature meaning. Fault detection therefore cannot exhibit semantic feature transfer,
-and the transfer experiments use zero-shot sensor imputation, where the model must produce an unseen
-sensor's value and cannot sidestep its meaning.</p>
+<h2>6. Admissibility and cross-domain generality</h2>
+<p>A dataset can exhibit this effect only if some target is recoverable from features that are held out
+with it. We screen datasets with a headroom gate: hold a fault's primary sensors out and measure
+whether detection degrades. A single-duct air-handling-unit fault-detection benchmark fails the gate,
+because closed-loop control propagates every fault across the sensor set and leaves no sensor necessary;
+the Tennessee Eastman Process passes it. Separately, fault detection proves value-evident, a value-only
+model detects a held-out fault at AUROC 0.94 with the fault's columns masked in training, so it cannot
+exhibit semantic feature transfer, which is why the transfer experiments use imputation.</p>
+<p>The recoverability rule tracks statistics rather than the semantic label, and this dissociates the
+same measurement type across domains. In a building dataset, temperature sensors are strongly
+cross-correlated (sibling correlation 0.6 to 0.97), so the rule predicts they transfer; in the process
+dataset, several temperatures are independently controlled to setpoints (sibling correlation 0.06), so
+the rule predicts they do not. Same type, opposite recoverability, opposite predicted outcome, from a
+statistic computable without any model.</p>
 
-<h3>7.2 Zero-shot imputation transfer</h3>
-<p>A held-out query sensor is predicted from the other sensors and its semantic embedding through
-query-conditioned cross-attention; the query was never a training target. Transfer is measured as
-tracking skill, the Pearson correlation between the predicted and true series of the held-out sensor.
-This bounded metric is stable when normal and fault regimes are pooled, where \(R^2\) is dominated by
-regime shifts in the denominator. Across ten held-out queries spanning six measurement types and five
-seeds, correct semantics beat a shuffled-semantics control in every seed (metadata tracking skill
-0.153 against a shuffled control at -0.006, paired difference +0.159, positive in 5 of 5 seeds). The
-effect concentrates where same-type siblings are predictive (sensors of the same measurement type
-that were training targets): an unseen stripper pressure, related through its embedding to the reactor
-and separator pressures, is tracked at 0.92, while flows and levels do not transfer and temperature is
-mixed across embedding sources. The shuffled control retains partial skill on pressure (0.47) because
-several pressures are mutually predictive under any query embedding, and the correct embedding still
-nearly doubles it.</p>
-<p>The table reports per-type tracking skill for the three conditions that decide the semantic
-question: measurement-type metadata, the knowledge graph, and the shuffled control; conditions with
-no semantic content cannot form a query embedding for an unseen sensor and are excluded from the
-zero-shot comparison.</p>
-<div class="tablewrap">
-<table>
-<thead><tr><th>measurement type</th><th>metadata</th><th>KG</th><th>shuffled (control)</th></tr></thead>
-<tbody>
-<tr><td>Pressure</td><td>0.919</td><td>0.919</td><td>0.474</td></tr>
-<tr><td>Actuator</td><td>0.628</td><td>0.017</td><td>0.084</td></tr>
-<tr><td>Composition</td><td>0.220</td><td>0.217</td><td>-0.102</td></tr>
-<tr><td>Temperature</td><td>-0.455</td><td>0.331</td><td>-0.249</td></tr>
-<tr><td>Flow</td><td>-0.049</td><td>-0.062</td><td>-0.019</td></tr>
-<tr><td>Level</td><td>-0.081</td><td>-0.074</td><td>0.039</td></tr>
-</tbody>
-</table>
-</div>
-<p>No single embedding source dominates across types: measurement-type metadata carries most of the
-usable semantics here, and the knowledge-graph embedding does not provide a consistent advantage over
-it on this process, which localizes the value of explicit topology to settings this benchmark can now
-identify.</p>
+<h2>7. Related work</h2>
+<p>Feature-metadata transfer for tabular data is established in static tables. CARTE pretrains a
+graph-attention model over tables using column names, and TransTab and XTab transfer across tables with
+overlapping-but-different schemas; TabLLM serializes column names for large language models; TabPFN
+attains sample efficiency without column metadata and is a strong metadata-free reference. In clinical
+learning, GRAM uses an ontology of codes to improve prediction for rare features, the closest precedent
+for ontology metadata buying sample efficiency. Inductive spatio-temporal kriging predicts a new sensor
+from its location, and content-based cold-start recommenders substitute metadata for interaction
+history. Against this, current time-series foundation models are largely metadata-blind. Our
+contribution is not that metadata helps, but a quantitative account of what it contributes (polarity,
+not magnitude), a source-only predictor of when it helps and when it harms, and the admission and
+dissociation results that separate the semantic label from the statistics that actually govern
+transfer.</p>
 
-<h3>7.3 Semantic similarity does not predict transferability</h3>
-<p>Across held-out queries, the semantic similarity of a query to its nearest same-type sibling shows
-no rank correlation with its realized transfer (Spearman 0.06). Sensors with identical semantic
-embeddings transfer very differently, and a sensor with modest similarity to its siblings can transfer
-best. Transfer is governed by whether the same-type siblings are statistically predictive of the
-query, not by semantic proximity alone, which indicates that similarity must incorporate operating
-regime and causal structure to track transfer, and bounds the claim that graphs can be read for
-transferability directly.</p>
-
-<h2>8. Related work</h2>
-<p>The approach connects transfer learning and tabular transfer, schema and entity matching,
-knowledge-graph embeddings and inductive graph learning, set and feature-token architectures,
-metadata-aware and ontology-informed models, and the application literatures of industrial fault
-diagnosis and cross-dataset clinical prediction. The distinguishing element here is the combination
-of a training-free ontology-derived embedding with a shared, position-free feature encoder evaluated
-for label efficiency across independent ontologies.</p>
+<h2>8. Discussion</h2>
+<p>The results give a deployment rule. Before commissioning a new sensor, compute the signed
+recoverability of its semantic class from existing data: a large positive value means a shared semantic
+model can predict it at once; a value near zero means there is no borrowable signal; a negative value
+means semantics will confidently produce the wrong sign, so the sensor should not be virtualized
+zero-shot without at least one observation to fix the polarity. The embedding must be discriminative
+enough to distinguish same-type sensors, which text descriptions provide and coarse categorical
+metadata does not. The limitations are plain and stated as scope: the transfer measurements are on one
+process dataset with a simulation origin, the admission and dissociation results add a second domain
+only at the level of the statistic, and the labeled-data saving, while real and predictable, is
+localized to the sign. These boundaries are what the source-only statistic is for.</p>
 
 <h2>9. Conclusion</h2>
-<p>External semantic knowledge acts as a prior over feature identity, letting a model predict an
-unseen sensor it was never trained to predict when that sensor's semantic siblings are informative.
-The effect is strongest for pressure sensors and beats a shuffled-semantics control in every seed. It
-is also bounded: it requires a task that is not value-evident, it concentrates where same-type
-siblings are statistically predictive rather than merely semantically close, and explicit graph
-topology does not improve on measurement-type semantics on this process. SFT-Bench,
-its construct-matched protocol, and its admission gate provide the apparatus to measure these
-conditions, and to say cleanly when semantic feature transfer helps and when it cannot.</p>
+<p>Semantic descriptors decide where a zero-shot imputer looks; the signed correlation structure of
+what it finds there decides what it achieves. Both are computable from source data before any target
+label. Semantics contribute polarity and statistics contribute magnitude, realized skill equals signed
+recoverability, and the failures are predicted rather than merely observed. The practical value is a
+pre-deployment test that says whether, and how, external sensor semantics will help a new variable.</p>
 
 <h2 class="refhead">References</h2>
 <ol class="refs">
-<li>Granderson, J. et al. LBNL Fault Detection and Diagnostics Data Sets. Lawrence Berkeley National
-Laboratory, 2022. DOI 10.25984/1881324.</li>
-<li>Balaji, B. et al. Brick: Towards a Unified Metadata Schema for Buildings. ACM BuildSys, 2016.</li>
-<li>Goh, J. et al. A Dataset to Support Research in the Design of Secure Water Treatment Systems
-(SWaT). CRITIS, 2016.</li>
-<li>Downs, J. and Vogel, E. A Plant-Wide Industrial Process Control Problem (Tennessee Eastman
-Process). Computers and Chemical Engineering, 1993.</li>
-<li>Zaheer, M. et al. Deep Sets. NeurIPS, 2017.</li>
-<li>Schlichtkrull, M. et al. Modeling Relational Data with Graph Convolutional Networks. ESWC,
-2018.</li>
+<li>Kim, M., Grinsztajn, L., Varoquaux, G. CARTE: Pretraining and Transfer for Tabular Learning. ICML,
+2024.</li>
+<li>Wang, Z., Sun, J. TransTab: Learning Transferable Tabular Transformers Across Tables. NeurIPS,
+2022.</li>
+<li>Zhu, B. et al. XTab: Cross-table Pretraining for Tabular Transformers. ICML, 2023.</li>
+<li>Hegselmann, S. et al. TabLLM: Few-shot Classification of Tabular Data with Large Language Models.
+AISTATS, 2023.</li>
+<li>Hollmann, N. et al. Accurate predictions on small data with a tabular foundation model (TabPFN).
+Nature, 2025.</li>
+<li>Choi, E. et al. GRAM: Graph-based Attention Model for Healthcare Representation Learning. KDD,
+2017.</li>
+<li>Wu, Y. et al. Inductive Graph Neural Networks for Spatiotemporal Kriging (IGNNK). AAAI, 2021.</li>
+<li>Downs, J., Vogel, E. A Plant-Wide Industrial Process Control Problem (Tennessee Eastman Process).
+Computers and Chemical Engineering, 1993.</li>
+<li>Granderson, J. et al. LBNL Fault Detection and Diagnostics Data Sets. LBNL, 2022. DOI
+10.25984/1881324.</li>
 </ol>
 
 <footer>
-<p>Working draft. Code and full documentation at
+<p>Working draft. Code, experiments, and result artifacts at
 <a href="https://github.com/ApartsinProjects/SFT-Bench">github.com/ApartsinProjects/SFT-Bench</a>.
-Datasets used under their respective open licenses. Results are reported on LBNL SDAHU (admission
-negative) and the Tennessee Eastman Process (admission positive); additional domains are a roadmap.</p>
+Numbers are from a strict leakage-controlled protocol; a clinical-laboratory replication is in
+preparation.</p>
 </footer>
 
 </div>
