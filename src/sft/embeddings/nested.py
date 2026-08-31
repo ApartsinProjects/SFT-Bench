@@ -76,9 +76,15 @@ def build_nested_tables(features: pd.DataFrame, dim: int, seed: int) -> dict[str
     # A9: permute the full A6 vector across all features (semantic-assignment control)
     a9 = a6[rng.permutation(len(fids))]
 
-    # A5 text (real sentence embedding; PCA handled by pad_to)
-    text_vecs = TextEmbedder().embed(features)
-    a5 = np.stack([text_vecs[f] for f in fids])
+    # A5 text (real sentence embedding). Prefer a precomputed cache to avoid loading MiniLM at run
+    # time (its transformer load is the dominant memory spike on commit-limited hosts).
+    from pathlib import Path
+    cache = Path(__file__).resolve().parents[3] / "results/tep_text_emb.npy"
+    if cache.exists():
+        a5 = np.load(cache).astype(np.float32)
+    else:
+        text_vecs = TextEmbedder().embed(features)
+        a5 = np.stack([text_vecs[f] for f in fids])
 
     raw = {"A1_random": a1, "A3_type": a3, "A4_metadata": a4, "A5_text": a5,
            "A6_metaTopo": a6, "A8_topoShuf": a8, "A9_allShuf": a9}

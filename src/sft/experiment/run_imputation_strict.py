@@ -32,12 +32,25 @@ from ..embeddings.nested import build_nested_tables
 
 ROOT = Path(__file__).resolve().parents[3]
 
-# Held-out sensors: separator + stripper block, two per measurement type (siblings remain: reactor).
-HELD = ["XMEAS11", "XMEAS13", "XMEAS18", "XMEAS16",       # temp, pressure (2 each)
-        "XMEAS12", "XMEAS15", "XMEAS14", "XMEAS17"]        # level, flow (2 each)
+# Held-out sensors: ONE per measurement type, each keeping >=2 same-type SIBLINGS in training so the
+# model can learn a type-attention pattern to transfer. (Holding out multiple same-type sensors, as an
+# earlier version did, removes the sibling structure and makes transfer impossible by construction.)
+#   Pressure XMEAS16 (siblings 7,13) | Temperature XMEAS18 (9,11,21,22) | Level XMEAS15 (8,12)
+#   Flow XMEAS17 (1-6,10,14,19)      | Composition XMEAS37 (23-36)      | Actuator XMV9 (XMV1-8,10,11)
+HELD = ["XMEAS16", "XMEAS18", "XMEAS15", "XMEAS17", "XMEAS37", "XMV9"]
 HELD_IDX = [COLUMNS.index(c) for c in HELD]
-TRAIN_RUNS = [("train", 0), ("train", 1), ("train", 4), ("train", 6), ("train", 8), ("train", 13)]
-TEST_RUNS = [("test", 0), ("test", 5), ("test", 11), ("test", 12), ("test", 14)]  # disjoint trajectories
+# Probe: trained (non-held) sensors, imputed on the test trajectories, to confirm the strict grouped
+# task is learnable at all. If probe skill ~0, the split is too hard regardless of semantics.
+PROBE = ["XMEAS7", "XMEAS9", "XMEAS8"]       # reactor pressure / temperature / level (all trained)
+PROBE_IDX = [COLUMNS.index(c) for c in PROBE]
+# Leakage-free but SAME-REGIME split: train on each fault type's .dat run, test on the SAME fault
+# type's independent _te.dat run (a separate simulation). This holds cross-feature relationships fixed
+# (so imputation is learnable, confirmed by the probe) while keeping train/test trajectories fully
+# independent. Using entirely different fault types across the split instead makes even trained
+# sensors unimputable (probe ~0), because different faults have different multivariate dynamics.
+FAULT_SET = [0, 1, 4, 5, 6, 8, 11, 12, 13, 14]
+TRAIN_RUNS = [("train", i) for i in FAULT_SET]      # d{i}.dat
+TEST_RUNS = [("test", i) for i in FAULT_SET]        # d{i}_te.dat (independent runs, same regimes)
 CONDS = ["A0_value", "A1_random", "A3_type", "A4_metadata", "A5_text",
          "A6_metaTopo", "A8_topoShuf", "A9_allShuf"]
 
@@ -99,21 +112,83 @@ def train_eval(name, e_table, e_dim, Xtr, Xte_ctx, Yte, held_idx, train_targets,
     model.eval(); out = {}
     with torch.no_grad():
         Xc = torch.tensor(Xte_ctx, device=device)
-        for hq in held_idx:
+        for hq in held_idx:                        # held (unseen) queries
             qb = torch.full((len(Xte_ctx),), hq, device=device)
             mask = torch.ones(len(Xte_ctx), 52, device=device); mask[:, held_idx] = 0.0
             pred = model(Xc, eargs(len(Xte_ctx)), qb, mask).cpu().numpy()
             out[COLUMNS[hq]] = pearson(Yte[:, hq], pred)
+        for pq in PROBE_IDX:                        # probe: trained sensors, masked from context
+            qb = torch.full((len(Xte_ctx),), pq, device=device)
+            mask = torch.ones(len(Xte_ctx), 52, device=device); mask[:, held_idx] = 0.0; mask[:, pq] = 0.0
+            # probe sensor value present in Xc but excluded by mask; predict it from remaining context
+            pred = model(Xc, eargs(len(Xte_ctx)), qb, mask).cpu().numpy()
+            out["probe_" + COLUMNS[pq]] = pearson(Yte[:, pq], pred)
     return out
+
+
+def analyze(df, n_seeds, types):
+    print("\n=== PROBE (trained-sensor imputation on test trajectories) mean skill by K x cond ===")
+    print("    (must be >> 0, else the grouped split is too hard regardless of semantics)")
+    print(df.pivot_table("probe_skill", "K", "condition").round(3).mean(axis=1).round(3).to_dict())
+    print("\n=== STRICT imputation: mean HELD tracking skill by K x condition (all conditions) ===")
+    print(df.pivot_table("mean_skill", "K", "condition").round(3))
+    d0 = df[df.K == 0]
+    rows = []
+    for hq in HELD:
+        for c in CONDS:
+            rows.append(dict(mtype=types[hq], condition=c, skill=d0[d0.condition == c][hq].mean()))
+    bt = pd.DataFrame(rows).groupby(["mtype", "condition"])["skill"].mean().unstack("condition").round(3)
+    bt.to_csv(ROOT / "results/tep_strict_bytype.csv")
+    print("\n=== zero-shot tracking skill BY TYPE (K=0) ===")
+    print(bt[["A1_random", "A4_metadata", "A5_text", "A6_metaTopo", "A8_topoShuf"]])
+    seeds = sorted(df.seed.unique())
+
+    def paired(a, b):
+        diffs = []
+        for s in seeds:
+            for hq in HELD:
+                va = d0[(d0.condition == a) & (d0.seed == s)][hq].mean()
+                vb = d0[(d0.condition == b) & (d0.seed == s)][hq].mean()
+                diffs.append(va - vb)
+        diffs = np.array(diffs)
+        boot = [np.mean(np.random.default_rng(i).choice(diffs, len(diffs))) for i in range(2000)]
+        return diffs.mean(), *np.percentile(boot, [2.5, 97.5])
+    print("\n=== decisive contrasts (mean paired diff [95% bootstrap CI]) ===")
+    contrasts = [("metadata gain  A4-A1", "A4_metadata", "A1_random"),
+                 ("topology gain  A6-A4", "A6_metaTopo", "A4_metadata"),
+                 ("topology attach A6-A8", "A6_metaTopo", "A8_topoShuf"),
+                 ("text vs metadata A5-A4", "A5_text", "A4_metadata")]
+    out = {}
+    for label, a, b in contrasts:
+        m, lo, hi = paired(a, b)
+        out[label] = [m, lo, hi]
+        print(f"  {label}: {m:+.3f} [{lo:+.3f}, {hi:+.3f}]")
+    (ROOT / "results/tep_strict_contrasts.json").write_text(json.dumps(out, indent=2))
+    print("\nwrote tep_strict_bytype.csv, tep_strict_contrasts.json")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=str(ROOT / "configs/phase1.json"))
     ap.add_argument("--seeds", type=int, default=10)
+    ap.add_argument("--only-seed", type=int, default=-1, help="run a single seed to its own parquet")
+    ap.add_argument("--merge", action="store_true", help="merge per-seed parquets and analyze")
+    ap.add_argument("--epochs", type=int, default=0, help="override training epochs (0 = use config)")
     ap.add_argument("--cpu", action="store_true")
     args = ap.parse_args()
+
+    features_ = build_tep_features()
+    types_ = dict(zip(features_["feature_id"].str.split(":").str[1], features_["measurement_type"]))
+    if args.merge:
+        parts = sorted((ROOT / "results").glob("tep_strict_seed*.parquet"))
+        df = pd.concat([pd.read_parquet(p) for p in parts], ignore_index=True)
+        df.to_parquet(ROOT / "results/tep_strict_imputation.parquet")
+        print(f"merged {len(parts)} seeds -> {len(df)} rows")
+        analyze(df, len(parts), types_)
+        return
     cfg = json.loads(Path(args.config).read_text())
+    if args.epochs > 0:
+        cfg["epochs"] = args.epochs
     torch.set_num_threads(max(1, min(4, torch.get_num_threads() or 4)))
     device = "cpu" if args.cpu else ("cuda" if torch.cuda.is_available() else "cpu")
     features = build_tep_features(); e_dim = cfg["e_dim"]
@@ -138,8 +213,13 @@ def main():
     print(f"[strict] train runs {TRAIN_RUNS} disjoint from test runs {TEST_RUNS}", flush=True)
 
     Ks = [0, 1, 2, 5, 10]
+    seed_list = [args.only_seed] if args.only_seed >= 0 else list(range(args.seeds))
     recs = []
-    for seed in range(args.seeds):
+    for seed in seed_list:
+        seed_pq = ROOT / f"results/tep_strict_seed{seed}.parquet"
+        if seed_pq.exists():                       # resume: skip seeds already computed
+            print(f"[strict] seed{seed} already done, skipping", flush=True)
+            continue
         rng = np.random.default_rng(1000 + seed)
         tables = build_nested_tables(features, e_dim, seed=seed)
         # test rows: split into adaptation pool and eval set (grouped: same disjoint test runs)
@@ -152,47 +232,23 @@ def main():
                 et = None if cond == "A0_value" else tables[cond]
                 out = train_eval(cond, et, e_dim, Xtr, eval_ctx, eval_true, HELD_IDX,
                                  train_targets, K, adapt_rows, seed, cfg, device)
+                held_sk = float(np.mean([out[COLUMNS[h]] for h in HELD_IDX]))
+                probe_sk = float(np.mean([out["probe_" + COLUMNS[p]] for p in PROBE_IDX]))
                 recs.append(dict(condition=cond, K=K, seed=seed,
-                                 mean_skill=float(np.mean(list(out.values()))), **out))
+                                 mean_skill=held_sk, probe_skill=probe_sk, **out))
                 gc.collect()
-            pd.DataFrame(recs).to_parquet(ROOT / "results/tep_strict_imputation.parquet")
             print(f"[strict] seed{seed} K={K} done", flush=True)
+        # write this seed's rows to its OWN parquet (fresh-process-per-seed survives memory pressure)
+        tag = f"seed{seed}"
+        pd.DataFrame([r for r in recs if r["seed"] == seed]).to_parquet(
+            ROOT / f"results/tep_strict_{tag}.parquet")
 
-    df = pd.DataFrame(recs)
-    print("\n=== STRICT imputation: mean tracking skill by K x condition (all conditions) ===")
-    print(df.pivot_table("mean_skill", "K", "condition").round(3))
-
-    # per-type at K=0 with the decisive contrasts
-    d0 = df[df.K == 0]
-    rows = []
-    for hq in HELD:
-        for c in CONDS:
-            rows.append(dict(mtype=types[hq], condition=c, skill=d0[d0.condition == c][hq].mean()))
-    bt = pd.DataFrame(rows).groupby(["mtype", "condition"])["skill"].mean().unstack("condition").round(3)
-    bt.to_csv(ROOT / "results/tep_strict_bytype.csv")
-    print("\n=== zero-shot tracking skill BY TYPE (K=0) ===")
-    print(bt[["A1_random", "A4_metadata", "A5_text", "A6_metaTopo", "A8_topoShuf"]])
-
-    # decisive paired contrasts across seeds x held targets
-    def paired(cond_a, cond_b):
-        diffs = []
-        for s in range(args.seeds):
-            for hq in HELD:
-                a = d0[(d0.condition == cond_a) & (d0.seed == s)][hq].mean()
-                b = d0[(d0.condition == cond_b) & (d0.seed == s)][hq].mean()
-                diffs.append(a - b)
-        diffs = np.array(diffs)
-        boot = [np.mean(np.random.default_rng(i).choice(diffs, len(diffs))) for i in range(2000)]
-        lo, hi = np.percentile(boot, [2.5, 97.5])
-        return diffs.mean(), lo, hi
-    print("\n=== decisive contrasts (mean paired diff [95% bootstrap CI]) ===")
-    for label, a, b in [("metadata gain  A4-A1", "A4_metadata", "A1_random"),
-                        ("topology gain  A6-A4", "A6_metaTopo", "A4_metadata"),
-                        ("topology attach A6-A8", "A6_metaTopo", "A8_topoShuf"),
-                        ("text vs metadata A5-A4", "A5_text", "A4_metadata")]:
-        m, lo, hi = paired(a, b)
-        print(f"  {label}: {m:+.3f} [{lo:+.3f}, {hi:+.3f}]")
-    print("\nwrote tep_strict_imputation.parquet, tep_strict_bytype.csv")
+    if args.only_seed < 0:                         # analyze from ALL per-seed parquets on disk
+        parts = sorted((ROOT / "results").glob("tep_strict_seed*.parquet"))
+        df = pd.concat([pd.read_parquet(p) for p in parts], ignore_index=True)
+        df.to_parquet(ROOT / "results/tep_strict_imputation.parquet")
+        analyze(df, len(parts), types)
+    print("=== DONE ===", flush=True)
 
 
 if __name__ == "__main__":
